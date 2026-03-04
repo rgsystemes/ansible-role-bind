@@ -1,5 +1,29 @@
 ---
+bind_packages:
+  - python3-netaddr
+  - python3-dnspython
+  - bind9
+  - bind9utils
+bind_service: bind9
 
+# Main config file
+bind_config: /etc/bind/named.conf
+
+# Directory with run-time stuff
+bind_dir: /var/cache/bind
+bind_conf_dir: "/etc/bind"
+bind_auth_file: "{{ bind_conf_dir }}/auth_transfer.conf"
+
+bind_owner: root
+bind_group: bind
+
+bind_bindkeys_file: "/etc/named.iscdlv.key"
+bind_pid_file: "/run/named/named.pid"
+bind_session_keyfile: "/run/named/session.key"
+
+# Custom location for zone files
+bind_zone_dir: "{{ bind_dir }}"
+bind_secondary_dir: "{{ bind_dir }}/secondary"
 # List of zones for which this name server is authoritative
 bind_zones: []
 
@@ -78,9 +102,6 @@ bind_zone_file_mode: "0640"
 bind_dns64: false
 bind_dns64_clients:
   - "any"
-
-# Set Python version
-bind_python_version: "{{ bind_default_python_version }}"
 
 # Log file
 bind_log: "data/named.run"
