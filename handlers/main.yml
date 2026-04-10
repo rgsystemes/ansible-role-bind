@@ -1,7 +1,6 @@
 ---
-
-- name: reload bind
+- name: Reload bind
   service:
     name: "{{ bind_service }}"
     state: reloaded
-  become: yes
+  become: true

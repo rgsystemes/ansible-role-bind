@@ -1,39 +1,54 @@
 ---
 name: CI
-'on':
+on:
+  repository_dispatch:
+    types: CI
   pull_request:
+    branches:
+      - '*'
   push:
     branches:
       - master
 
 jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the codebase.
+        uses: actions/checkout@v6
 
-  test:
+      - name: Set up Python 3.
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.13'  # Can't go to 3.14+ until Ansible 13.x
+
+      - name: Install test dependencies.
+        run: pip3 install yamllint
+
+      - name: Lint code.
+        run: |
+          yamllint .
+  molecule:
     name: Molecule
+    needs: lint
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        distro:
-          - centos7
-          - centos8
-          - debian8
-          - debian9
-          - debian10
-          - ubuntu1604
-          - ubuntu1804
-          - ubuntu2004
-
+        include:
+          - distro: debian11
+          - distro: debian13
     steps:
-      - name: Check out the codebase.
-        uses: actions/checkout@v2
+      - name: Checkout repo
+        uses: actions/checkout@v6
 
-      - name: Set up Python 3
-        uses: actions/setup-python@v2
+      - name: Set up Python 3.
+        uses: actions/setup-python@v6
         with:
-          python-version: '3.x'
+          python-version: '3.13'  # Can't go to 3.14+ until Ansible 13.x
 
       - name: Install test dependencies.
-        run: pip3 install ansible molecule molecule-docker yamllint ansible-lint docker netaddr dnspython
+        run: pip3 install ansible molecule "molecule-plugins[docker]" docker netaddr dnspython
 
       - name: Run Molecule Primary/Secondary/Forwarder tests
         run: molecule test
