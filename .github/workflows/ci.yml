@@ -50,6 +50,9 @@ jobs:
       - name: Install test dependencies.
         run: pip3 install ansible molecule "molecule-plugins[docker]" docker netaddr dnspython
 
+      - name: Install Ansible collections.
+        run: ansible-galaxy collection install ansible.utils
+
       - name: Run Molecule Primary/Secondary/Forwarder tests
         run: molecule test
         env:
