@@ -1,4 +1,5 @@
 ---
+role_name_check: 1
 dependency:
   name: galaxy
 driver:
@@ -18,13 +19,11 @@ platforms:
     command: ${MOLECULE_DOCKER_COMMAND:-""}
     volumes:
       - /sys/fs/cgroup:/sys/fs/cgroup:rw
-      - ${PWD}:/etc/ansible/roles/bertvv.bind:ro
+      - ${PWD}:/etc/ansible/roles/ansible-role-bind:ro
       - ${PWD}/library:/root/.ansible/plugins/modules:ro
+    cgroupns_mode: host
     privileged: true
     pre_build_image: true
-    tty: true
-    environment:
-      container: docker
   - name: ns2
     hostname: ns2
     networks:
@@ -34,13 +33,11 @@ platforms:
     command: ${MOLECULE_DOCKER_COMMAND:-""}
     volumes:
       - /sys/fs/cgroup:/sys/fs/cgroup:rw
-      - ${PWD}:/etc/ansible/roles/bertvv.bind:ro
+      - ${PWD}:/etc/ansible/roles/ansible-role-bind:ro
       - ${PWD}/library:/root/.ansible/plugins/modules:ro
+    cgroupns_mode: host
     privileged: true
     pre_build_image: true
-    tty: true
-    environment:
-      container: docker
   - name: ns3
     hostname: ns3
     networks:
@@ -50,20 +47,19 @@ platforms:
     command: ${MOLECULE_DOCKER_COMMAND:-""}
     volumes:
       - /sys/fs/cgroup:/sys/fs/cgroup:rw
-      - ${PWD}:/etc/ansible/roles/bertvv.bind:ro
+      - ${PWD}:/etc/ansible/roles/ansible-role-bind:ro
       - ${PWD}/library:/root/.ansible/plugins/modules:ro
+    cgroupns_mode: host
     privileged: true
     pre_build_image: true
-    tty: true
-    environment:
-      container: docker
 provisioner:
   name: ansible
   config_options:
     defaults:
       interpreter_python: auto_legacy_silent
-      callback_whitelist: profile_tasks
+      deprecation_warnings: false
+      remote_tmp: /tmp
     ssh_connection:
       pipelining: true
-verifier:
-  name: ansible
+  playbooks:
+    converge: ${MOLECULE_PLAYBOOK:-converge.yml}

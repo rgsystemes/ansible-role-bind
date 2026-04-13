@@ -1,7 +1,7 @@
 ---
 galaxy_info:
+  namespace: rgsystemes
   role_name: bind
-  namespace: bertvv
   author: Bert Van Vreckem
   description: >
     Sets up ISC BIND as an authoritative DNS server for one or more domains

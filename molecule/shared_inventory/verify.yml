@@ -13,7 +13,7 @@
 
     - name: Set local_dns variable for dig
       ansible.builtin.set_fact:
-        local_dns: "{{ '@' + ansible_default_ipv4.address }}"
+        local_dns: "{{ '@' + ansible_facts['default_ipv4']['address'] }}"
 
     - name: IPv4 Forward lookups
       ansible.builtin.assert:
@@ -82,16 +82,30 @@
           - lookup('dig', '2001:db9::1/PTR', local_dns)   == 'srv001.example.com.'
 
     - name: NS records lookup
+      vars:
+        acme_ns: >-
+          {{ lookup('dig', 'acme-inc.com/NS', local_dns)
+             .split(',') | sort | join(',') }}
+        example_ns: >-
+          {{ lookup('dig', 'example.com/NS', local_dns)
+             .split(',') | sort | join(',') }}
       ansible.builtin.assert:
         that:
-          - lookup('dig', 'acme-inc.com/NS', local_dns).split(',') | sort | join(',') == 'ns1.acme-inc.com.,ns2.acme-inc.com.'
-          - lookup('dig', 'example.com/NS', local_dns).split(',')  | sort | join(',') == 'ns1.acme-inc.com.,ns2.acme-inc.com.'
+          - acme_ns == 'ns1.acme-inc.com.,ns2.acme-inc.com.'
+          - example_ns == 'ns1.acme-inc.com.,ns2.acme-inc.com.'
 
     - name: MX records lookup
+      vars:
+        acme_mx: >-
+          {{ lookup('dig', 'acme-inc.com/MX', local_dns)
+             .split(',') | sort | join(',') }}
+        example_mx: >-
+          {{ lookup('dig', 'example.com/MX', local_dns)
+             .split(',') | sort | join(',') }}
       ansible.builtin.assert:
         that:
-          - lookup('dig', 'acme-inc.com/MX', local_dns).split(',') | sort | join(',') == '10 mail001.acme-inc.com.,20 mail002.acme-inc.com.'
-          - lookup('dig', 'example.com/MX', local_dns).split(',')  | sort | join(',') == '10 mail001.example.com.'
+          - acme_mx == '10 mail001.acme-inc.com.,20 mail002.acme-inc.com.'
+          - example_mx == '10 mail001.example.com.'
 
     - name: Service records lookup
       ansible.builtin.assert:
